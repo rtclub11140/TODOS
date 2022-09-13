@@ -18,13 +18,8 @@ interface Todo {
 }
 
 const App = () => {
-  const [todo, setTodo] = useState<string>('');
-  const [todos, setTodos] = useState<Todo[]>([
-    {
-      id: 0,
-      text: 'Sample TODO',
-    },
-  ]);
+  const [todo, setTodo] = useState<string>();
+  const [todos, setTodos] = useState<Todo[]>();
 
   const fetchTodos = async () => {
     const data = await AsyncStorage.getItem('todos');
@@ -53,14 +48,14 @@ const App = () => {
      */
     if (todo === '') {
       return;
+    } else if (todo !== undefined) {
+      /**
+       * Since we can't use the spread syntax (...)
+       * with undefined values, we can provide a
+       * fallback of an empty array.
+       */
+      setTodos([...(todos || []), { id: Date.now(), text: todo }]);
     }
-
-    /**
-     * Since we can't use the spread syntax (...)
-     * with undefined values, we can provide a
-     * fallback of an empty array.
-     */
-    setTodos([...(todos || []), { id: Date.now(), text: todo }]);
 
     /**
      * Resets current todo to blank
@@ -83,13 +78,15 @@ const App = () => {
           <Text style={styles.button}>Add</Text>
         </TouchableOpacity>
       </View>
-      <View style={styles.list}>
-        <FlatList
-          data={todos}
-          renderItem={({ item }) => <SingleTodo todo={item} todos={todos} setTodos={setTodos} />}
-          keyExtractor={item => item.id.toString()}
-        />
-      </View>
+      {todos !== undefined && (
+        <View style={styles.list}>
+          <FlatList
+            data={todos}
+            renderItem={({ item }) => <SingleTodo todo={item} todos={todos} setTodos={setTodos} />}
+            keyExtractor={item => item.id.toString()}
+          />
+        </View>
+      )}
       <View>
         <Text style={styles.footer}>
           Made with ❤ by
